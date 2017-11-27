@@ -50,28 +50,135 @@ function protected(req, res, next) {
 }
 */
 
+function wardenOnly(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        if ( err ) {
+            console.log('failed to find user')
+            res.send({failure:'failure'})
+        }
+        else if ( !user ) {
+            res.send({failure:'failure'})
+        } else {
+            if( user.role === 'warden' ) {
+                // do something and call next()
+                console.log("Access is granted, come on in.")
+                next()
+            } else {
+                res.send(403)
+                // send down a forbidden response (status code 403)
+            }
+        }
+    })
+}
+
+function evesCell(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        if ( err ) {
+            console.log('failed to find user')
+            res.send({failure:'failure'})
+        }
+        else if ( !user ) {
+            res.send({failure:'failure'})
+        } else {
+            if( user.username === 'eve' || user.role === 'warden' || user.role === 'guard' ) {
+                // do something and call next()
+                console.log("Access is granted, come on in.")
+                next()
+            } else {
+                res.send(403)
+                // send down a forbidden response (status code 403)
+            }
+        }
+    })
+}
+
+function mallorysCell(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        if ( err ) {
+            console.log('failed to find user')
+            res.send({failure:'failure'})
+        }
+        else if ( !user ) {
+            res.send({failure:'failure'})
+        } else {
+            if( user.username === 'mallory' || user.role === 'warden' || user.role === 'guard' ) {
+                // do something and call next()
+                console.log("Access is granted, come on in.")
+                next()
+            } else {
+                res.send(403)
+                // send down a forbidden response (status code 403)
+            }
+        }
+    })
+}
+
+function cafeteriaAccess(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        if ( err ) {
+            console.log('failed to find user')
+            res.send({failure:'failure'})
+        }
+        else if ( !user ) {
+            res.send({failure:'failure'})
+        } else {
+            if( user.role === 'prisoner' || user.role === 'warden' || user.role === 'guard' ) {
+                // do something and call next()
+                console.log("Access is granted, come on in.")
+                next()
+            } else {
+                res.send(403)
+                // send down a forbidden response (status code 403)
+            }
+        }
+    })
+}
+
+function visitorsAccess(req, res, next) {
+    User.findOne({_id: req.session.uid}, function(err, user){
+        if ( err ) {
+            console.log('failed to find user')
+            res.send({failure:'failure'})
+        }
+        else if ( !user ) {
+            res.send({failure:'failure'})
+        } else {
+            if( user.role === 'visitor' || user.role === 'warden' || user.role === 'guard' ) {
+                // do something and call next()
+                console.log("Access is granted, come on in.")
+                next()
+            } else {
+                res.send(403)
+                // send down a forbidden response (status code 403)
+            }
+        }
+    })
+}
+
+
+
 app.get('/', function(req, res){
     res.sendFile('./html/login.html', {root:'./public'});
 });
 app.get('/jail', function(req, res, next){
     res.sendFile('./html/jail.html', {root:'./public'});
 });
-app.get('/lobby', function(req, res, next){
+app.get('/lobby', visitorsAccess, function(req, res, next){
     res.sendFile('./html/lobby.html', {root:'./public'});
 });
-app.get('/visitors-lounge', function(req, res, next){
+app.get('/visitors-lounge', visitorsAccess, function(req, res, next){
     res.sendFile('./html/visitors-lounge.html', {root:'./public'});
 });
-app.get('/cafeteria', function(req, res, next){
+app.get('/cafeteria', cafeteriaAccess, function(req, res, next){
     res.sendFile('./html/cafeteria.html', {root:'./public'});
 });
-app.get('/wardens-office', function(req, res, next){
+app.get('/wardens-office', wardenOnly, function(req, res, next){
     res.sendFile('./html/wardens-office.html', {root:'./public'});
 });
-app.get('/cell-e', function(req, res, next){
+app.get('/cell-e', evesCell, function(req, res, next){
     res.sendFile('./html/cell-e.html', {root:'./public'});
 });
-app.get('/cell-m', function(req, res, next){
+app.get('/cell-m', mallorysCell, function(req, res, next){
     res.sendFile('./html/cell-m.html', {root:'./public'});
 });
 
